@@ -1,14 +1,13 @@
 import torch
 
-class LSTM(torch.nn.Module):
+class LSTMForecaster(torch.nn.Module):
     def __init__(self, 
                 input_size,
                 hidden_size,
                 num_layers, 
                 output_size, 
-                dropout = 0.2,
-                device = torch.device('')):
-        super(LSTM, self).__init__()
+                dropout = 0.2):
+        super(LSTMForecaster, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.drop_out = dropout

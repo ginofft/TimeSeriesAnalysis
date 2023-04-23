@@ -16,6 +16,7 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         sequence = torch.tensor(self.data[self.input_field][idx:idx + self.seq_len].values, dtype=torch.float32)
-        target = torch.tensor(self.data[self.output_field][idx + self.seq_len : idx + self.seq_len + 1].values, dtype=torch.float32)
+        target = torch.tensor(self.data[self.output_field][idx + self.seq_len : idx + self.seq_len + 1].values, 
+                              dtype=torch.float32).squeeze_(dim=0) # squeeze at 0th dimension, as this is before batch
         return sequence, target
     
