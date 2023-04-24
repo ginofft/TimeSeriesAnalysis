@@ -21,6 +21,6 @@ class LSTMForecaster(torch.nn.Module):
         #c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
 
         #output, _  = self.lstm(x, (h0, c0))
-        output = self.lstm(x)
+        output, _ = self.lstm(x)
         output = self.fc(output[:,-1, :])
         return output
