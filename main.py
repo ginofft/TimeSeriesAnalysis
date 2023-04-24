@@ -50,22 +50,9 @@ if __name__ == '__main__':
     if opt.datasetPath == '':
         raise ValueError('Please specify the path to the dataset')
     
-    df = pd.read_csv(opt.datasetPath)   
-    train_ratio = 0.7
-    val_ratio = 0.15
-    test_ratio = 0.15
-
-    num_rows = len(df)
-    train_end_index = int(train_ratio*num_rows)
-    val_end_index = int((train_ratio + val_ratio)*num_rows)
-
-    train_df = df.iloc[:train_end_index]
-    val_df = df.iloc[train_end_index:val_end_index]
-    test_df = df.iloc[val_end_index:]
-
-    train_df = train_df.reset_index(drop=True)
-    val_df = val_df.reset_index(drop=True)
-    test_df = test_df.reset_index(drop=True)
+    train_df = pd.read_csv(opt.datasetPath+'/train.csv')
+    val_df = pd.read_csv(opt.datasetPath+'/val.csv')
+    test_df = pd.read_csv(opt.datasetPath+'/test.csv')       
 
     field_to_be_scaled = opt.inputField + opt.outputField
     scaler = Scaler(train_df[field_to_be_scaled], 'minmax')

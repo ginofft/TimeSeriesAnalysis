@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader
 import pandas as pd
 
 class TimeSeriesDataset(torch.utils.data.Dataset):
@@ -23,4 +24,21 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
         target = torch.tensor(self.data[self.output_field][idx + self.seq_len : idx + self.seq_len + 1].values, 
                               dtype=torch.float32).squeeze_(dim=0) # squeeze at 0th dimension, as this is before batch
         return sequence, target
+    
+    def predict(self, model, batchSize=8):
+        for col in self.output_field:
+            self.data[col+'_pred'] = pd.Series()
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model.to(device)
+        model.eval()
+        with torch.no_grad():
+            for input, targets in enumerate(self):
+                input = input.to(device)
+                targets = targets.to(device)
+                embeddings = model(input)
+                raise Exception('Not implemeted yet')
+
+
+        
     
