@@ -99,12 +99,9 @@ if __name__ == '__main__':
             epoch_train_loss = train(train_dataset, model, 
                                     criterion, optimizer, 
                                     device, opt.batchSize, epoch)
-            epoch_val_loss = train(val_dataset, model,
-                                    criterion, optimizer,
-                                    device, opt.batchSize, epoch)
-            # epoch_val_loss = inference(val_dataset, model, 
-            #                         criterion, device, 
-            #                         opt.batchSize)
+            epoch_val_loss = inference(val_dataset, model, 
+                                    criterion, device, 
+                                    opt.batchSize)
             
             print('Epoch {} completed: \nTrain loss: {:.4f} \nValidation loss: {:.4f}'.format(
                 epoch, epoch_train_loss, epoch_val_loss))
