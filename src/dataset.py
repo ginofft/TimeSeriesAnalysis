@@ -46,7 +46,8 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
         return self.data
 
     def plot_forecast_result(self):
-        df = self.data[self.seq_len:]
+        #df = self.data[self.seq_len:]
+        df = self.data[self.seq_len:self.seq_len+self.seq_len*10]
         col_pred = [col + '_pred' for col in self.output_field]
         cols = col_pred + self.output_field
 
