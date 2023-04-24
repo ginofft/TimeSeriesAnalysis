@@ -15,7 +15,7 @@ def train(
     dataloader = DataLoader(train_set, 
                             batch_size = batch_size, 
                             num_workers = 2, 
-                            shuffle = False,
+                            shuffle = True,
                             pin_memory = True)
     n_batches = len(dataloader)
 

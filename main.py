@@ -50,8 +50,8 @@ if __name__ == '__main__':
         raise ValueError('Please specify the path to the dataset')
     
     df = pd.read_csv(opt.datasetPath)   
-    train_ratio = 0.5
-    val_ratio = 0.35
+    train_ratio = 0.7
+    val_ratio = 0.15
     test_ratio = 0.15
 
     num_rows = len(df)

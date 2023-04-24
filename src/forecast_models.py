@@ -17,9 +17,10 @@ class LSTMForecaster(torch.nn.Module):
         self.fc = torch.nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device) 
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        #h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device) 
+        #c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
 
-        output, _  = self.lstm(x, (h0, c0))
+        #output, _  = self.lstm(x, (h0, c0))
+        output = self.lstm(x)
         output = self.fc(output[:,-1, :])
         return output
