@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description='Forecasting and Anomaly Detection 
 parser.add_argument('--lr', type = float, default=1e-4, help='learning rate')
 parser.add_argument('--seqlen', type = int, default=64, help='sequence length')
 parser.add_argument('--hiddenSize', type = int, default=64, help='hidden size')
-parser.add_argument('--numLayers', type = int, default=2, help='No. of LSTM layers')
+parser.add_argument('--numLayers', type = int, default=16, help='No. of LSTM layers')
 
 #training parameters
 parser.add_argument('--mode', type=str, default='train', 
