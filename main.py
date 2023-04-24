@@ -68,7 +68,7 @@ if __name__ == '__main__':
     test_df = test_df.reset_index(drop=True)
 
     field_to_be_scaled = opt.inputField + opt.outputField
-    scaler = Scaler(train_df, field_to_be_scaled)
+    scaler = Scaler(train_df[field_to_be_scaled], 'minmax')
 
     train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
     val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
