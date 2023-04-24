@@ -54,7 +54,7 @@ if __name__ == '__main__':
     val_df = pd.read_csv(opt.datasetPath+'/val.csv')
     test_df = pd.read_csv(opt.datasetPath+'/test.csv')       
 
-    field_to_be_scaled = opt.inputField + opt.outputField
+    field_to_be_scaled = list(set(opt.inputField + opt.outputField))
     scaler = Scaler(train_df[field_to_be_scaled], 'minmax')
 
     train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqlen, scaler=scaler)

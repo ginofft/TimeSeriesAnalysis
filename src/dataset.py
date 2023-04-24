@@ -55,9 +55,4 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
             plt.plot(df[col], label=col)
         plt.legend()
         plt.show()
-            
-    
-
-
-        
     
