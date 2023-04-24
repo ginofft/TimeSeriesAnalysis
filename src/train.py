@@ -54,7 +54,7 @@ def inference(
         model,
         criterion, 
         device = torch.device('cuda'),
-        batch_size=8,):
+        batch_size=8):
     dataloader = DataLoader(testSet, 
                             batch_size = batch_size, 
                             num_workers = 2, 

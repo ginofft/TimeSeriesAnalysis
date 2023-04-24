@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
 import pandas as pd
 
 class TimeSeriesDataset(torch.utils.data.Dataset):
@@ -25,19 +26,36 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
                               dtype=torch.float32).squeeze_(dim=0) # squeeze at 0th dimension, as this is before batch
         return sequence, target
     
-    def predict(self, model, batchSize=8):
-        for col in self.output_field:
-            self.data[col+'_pred'] = pd.Series()
+    def predict(self, model):
+        col_pred = [col + '_pred' for col in self.output_field]
+        for col in col_pred:
+            self.data[col] = pd.Series()
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
         model.eval()
+        dataloader = DataLoader(self, batch_size=1, shuffle=False)
         with torch.no_grad():
-            for input, targets in enumerate(self):
+            for index, (input, target) in enumerate(dataloader):
                 input = input.to(device)
-                targets = targets.to(device)
-                embeddings = model(input)
-                raise Exception('Not implemeted yet')
+                target = target.to(device)
+                embedding = model(input)
+                row_index = index + self.seq_len
+                for i, col in enumerate(col_pred):
+                    self.data.loc[row_index, col] = embedding[0][i].item()
+        return self.data
+
+    def plot_forecast_result(self):
+        df = self.data[self.seq_len:]
+        col_pred = [col + '_pred' for col in self.output_field]
+        cols = col_pred + self.output_field
+
+        for col in cols:
+            plt.plot(df[col], label=col)
+        plt.legend()
+        plt.show()
+            
+    
 
 
         

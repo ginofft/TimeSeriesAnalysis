@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Forecasting and Anomaly Detection 
 
 #model, optimizer and criterion parameters
 parser.add_argument('--lr', type = float, default=1e-4, help='learning rate')
-parser.add_argument('--seqLen', type = int, default=64, help='sequence length')
+parser.add_argument('--seqlen', type = int, default=64, help='sequence length')
 parser.add_argument('--hiddenSize', type = int, default=64, help='hidden size')
 parser.add_argument('--numLayers', type = int, default=2, help='No. of LSTM layers')
 
@@ -57,9 +57,9 @@ if __name__ == '__main__':
     field_to_be_scaled = opt.inputField + opt.outputField
     scaler = Scaler(train_df[field_to_be_scaled], 'minmax')
 
-    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
-    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
-    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
+    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqlen, scaler=scaler)
+    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, seq_len=opt.seqlen, scaler=scaler)
+    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, seq_len=opt.seqlen, scaler=scaler)
 
     model = LSTMForecaster(input_size=len(opt.inputField), 
                            output_size=len(opt.outputField), 
