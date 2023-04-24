@@ -110,8 +110,8 @@ if __name__ == '__main__':
                     'val_loss' : epoch_val_loss,
                     'input_field' : opt.inputField,
                     'output_field' : opt.outputField,
-                    'model' : model.state_dict(),
-                    'optimizer' : optimizer.state_dict(),
+                    'model_state_dict' : model.state_dict(),
+                    'optimizer_state_dict' : optimizer.state_dict(),
                     }, Path(opt.savePath), 'best.pth.tar')
             
             if (epoch % opt.saveEvery) == 0:
@@ -121,8 +121,8 @@ if __name__ == '__main__':
                     'val_loss' : epoch_val_loss,
                     'input_field' : opt.inputField,
                     'output_field' : opt.outputField,
-                    'model' : model.state_dict(),
-                    'optimizer' : optimizer.state_dict(),
+                    'model_state_dict' : model.state_dict(),
+                    'optimizer_state_dict' : optimizer.state_dict(),
                     }, Path(opt.savePath), 'epoch{}.pth.tar'.format(epoch))
     else:
         if opt.loadPath:
