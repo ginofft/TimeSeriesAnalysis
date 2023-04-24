@@ -30,8 +30,7 @@ def train(
         loss.backward()
         optimizer.step()  
 
-        batch_loss = loss.item() / input.shape[0]
-        #print('Training batch loss: ', batch_loss, flush=True)
+        batch_loss = loss.item()
         epoch_loss += batch_loss
 
         del input, target, embeddings
@@ -72,8 +71,7 @@ def inference(
             embeddings = model(input)
             loss = criterion(embeddings, target).to(device)
 
-            batch_loss = loss.item() / input.shape[0]
-            #print('Inference batch loss: ', batch_loss, flush=True)
+            batch_loss = loss.item()
             epoch_loss += batch_loss
 
             del input, target, embeddings
