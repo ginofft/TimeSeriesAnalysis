@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='Forecasting and Anomaly Detection 
 
 #model, optimizer and criterion parameters
 parser.add_argument('--lr', type = float, default=1e-4, help='learning rate')
-parser.add_argument('--seqLen', type = int, default=10, help='sequence length')
+parser.add_argument('--seqLen', type = int, default=64, help='sequence length')
 parser.add_argument('--hiddenSize', type = int, default=64, help='hidden size')
 parser.add_argument('--numLayers', type = int, default=2, help='No. of LSTM layers')
 
@@ -95,9 +95,12 @@ if __name__ == '__main__':
             epoch_train_loss = train(train_dataset, model, 
                                     criterion, optimizer, 
                                     device, opt.batchSize, epoch)
-            epoch_val_loss = inference(val_dataset, model, 
-                                    criterion, device, 
-                                    opt.batchSize)
+            epoch_val_loss = train(val_dataset, model,
+                                    criterion, optimizer,
+                                    device, opt.batchSize, epoch)
+            # epoch_val_loss = inference(val_dataset, model, 
+            #                         criterion, device, 
+            #                         opt.batchSize)
             
             print('Epoch {} completed: \nTrain loss: {:.4f} \nValidation loss: {:.4f}'.format(
                 epoch, epoch_train_loss, epoch_val_loss))
