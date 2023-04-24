@@ -3,6 +3,7 @@ import torch
 import pandas as pd
 from pathlib import Path
 
+from src.scaler import Scaler
 from src.dataset import TimeSeriesDataset
 from src.train import train, inference
 from src.forecast_models import LSTMForecaster
@@ -66,9 +67,12 @@ if __name__ == '__main__':
     val_df = val_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
-    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqLen)
-    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, seq_len=opt.seqLen)
-    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, seq_len=opt.seqLen)
+    field_to_be_scaled = opt.inputField + opt.outputField
+    scaler = Scaler(train_df, field_to_be_scaled)
+
+    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
+    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
+    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, seq_len=opt.seqLen, scaler=scaler)
 
     model = LSTMForecaster(input_size=len(opt.inputField), 
                            output_size=len(opt.outputField), 
