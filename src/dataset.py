@@ -8,21 +8,23 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
                  input_field, 
                  output_field,
                  scaler = None,
-                 seq_len: int = 10):
+                 h=24,
+                 t=72):
         self.data = data
-        self.seq_len = seq_len
         self.input_field = input_field
         self.output_field = output_field
+        self.h = h
+        self.t = t
         if scaler is not None:
             self.scaler = scaler
             self.data = self.scaler.transform(self.data)
         
     def __len__(self):
-        return len(self.data) - self.seq_len
+        return len(self.data) - (self.h + self.t) + 1
 
     def __getitem__(self, idx):
-        sequence = torch.tensor(self.data[self.input_field][idx:idx + self.seq_len].values, dtype=torch.float32)
-        target = torch.tensor(self.data[self.output_field][idx + self.seq_len : idx + self.seq_len + 1].values, 
+        sequence = torch.tensor(self.data[self.input_field][idx:idx + self.t].values, dtype=torch.float32)
+        target = torch.tensor(self.data[self.output_field][idx + self.t : idx + self.t + self.h].values, 
                               dtype=torch.float32).squeeze_(dim=0) # squeeze at 0th dimension, as this is before batch
         return sequence, target
     
