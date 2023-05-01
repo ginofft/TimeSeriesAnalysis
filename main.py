@@ -74,7 +74,7 @@ if __name__ == '__main__':
     criterion = torch.nn.L1Loss()
 
     if opt.mode == 'train':
-        print('---------------------------Training---------------------------')
+        print('------------------------------- Training -------------------------------')
         startEpoch = 0
         val_loss = float('inf')
         train_loss = float('inf')
@@ -121,7 +121,7 @@ if __name__ == '__main__':
             if early_stopper is not None:    
                 early_stopper(epoch_val_loss)
                 if early_stopper.early_stop:
-                    print("Early stopping triggered!!")
+                    print('\n---------------------- Early stopping triggered!! ----------------------\n')
                     break
     else:
         if opt.loadPath:
@@ -132,6 +132,7 @@ if __name__ == '__main__':
             raise Exception('Please point to a model using ---loadPath')
 
         print('---------------------------Running Inferenece---------------------------')
+               
         test_loss = inference(test_dataset, model, criterion, device, opt.batchSize)
 
         print('Test loss: {:.4f}'.format(test_loss))
