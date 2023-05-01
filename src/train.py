@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
 from .dataset import TimeSeriesDataset
-from typing import List
 
 def train(
         train_set:TimeSeriesDataset,

@@ -7,7 +7,7 @@ from src.scaler import Scaler
 from src.dataset import TimeSeriesDataset
 from src.train import train, inference
 from src.forecast_models import LSTMForecaster
-from src.utils import save_checkpoint, load_checkpoint
+from src.utils import save_checkpoint, load_checkpoint, EarlyStopper
 
 parser = argparse.ArgumentParser(description='Forecasting and Anomaly Detection Toolbox')
 
@@ -26,6 +26,8 @@ parser.add_argument('--mode', type=str, default='train',
 parser.add_argument('--nEpochs', type = int, default=50, help='No. epochs')
 parser.add_argument('--saveEvery', type = int, default = 10, 
                     help='no. epoch before a save is created')
+parser.add_argument('--earlyStopping', type = bool, default = True,
+                    help = 'Whether or not to use early stopping')
 
 #Data parameters
 parser.add_argument('--batchSize', type=int, default = 16, help='batch size')
@@ -83,39 +85,44 @@ if __name__ == '__main__':
                                                 model,
                                                 optimizer)
         
+        if opt.earlyStopping:
+            early_stopper = EarlyStopper(patience=5, min_delta=0)
+        else:
+            early_stopper = None
+
         for epoch in range(startEpoch+1, opt.nEpochs+1):
+            #Calculate Loss
             epoch_train_loss = train(train_dataset, model, 
                                     criterion, optimizer, 
                                     device, opt.batchSize, epoch)
             epoch_val_loss = inference(val_dataset, model, 
                                     criterion, device, 
                                     opt.batchSize)
-            
             print('Epoch {} completed: \nTrain loss: {:.4f} \nValidation loss: {:.4f}'.format(
                 epoch, epoch_train_loss, epoch_val_loss))
             
+            #Setup save
+            epoch_state = {
+                'epoch' : epoch,
+                'train_loss' : epoch_train_loss,
+                'val_loss' : epoch_val_loss,
+                'input_field' : opt.inputField,
+                'output_field' : opt.outputField,
+                'model_state_dict' : model.state_dict(),
+                'optimizer_state_dict' : optimizer.state_dict(),
+            }
             if (epoch_val_loss < val_loss):
                 val_loss = epoch_val_loss
-                save_checkpoint({
-                    'epoch' : epoch,
-                    'train_loss' : epoch_train_loss,
-                    'val_loss' : epoch_val_loss,
-                    'input_field' : opt.inputField,
-                    'output_field' : opt.outputField,
-                    'model_state_dict' : model.state_dict(),
-                    'optimizer_state_dict' : optimizer.state_dict(),
-                    }, Path(opt.savePath), 'best.pth.tar')
-            
+                save_checkpoint(epoch_state, Path(opt.savePath), 'best.pth.tar')
             if (epoch % opt.saveEvery) == 0:
-                save_checkpoint({
-                    'epoch' : epoch,
-                    'train_loss' : epoch_train_loss,
-                    'val_loss' : epoch_val_loss,
-                    'input_field' : opt.inputField,
-                    'output_field' : opt.outputField,
-                    'model_state_dict' : model.state_dict(),
-                    'optimizer_state_dict' : optimizer.state_dict(),
-                    }, Path(opt.savePath), 'epoch{}.pth.tar'.format(epoch))
+                save_checkpoint(epoch_state, Path(opt.savePath), 'epoch{}.pth.tar'.format(epoch))
+
+            #Early stopping 
+            if early_stopper is not None:    
+                early_stopper(epoch_val_loss)
+                if early_stopper.early_stop:
+                    print("Early stopping triggered!!")
+                    break
     else:
         if opt.loadPath:
             startEpoch, train_loss, val_loss = load_checkpoint(Path(opt.loadPath),
