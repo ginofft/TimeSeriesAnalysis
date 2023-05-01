@@ -98,8 +98,8 @@ if __name__ == '__main__':
             epoch_val_loss = inference(val_dataset, model, 
                                     criterion, device, 
                                     opt.batchSize)
-            print('Epoch {} completed: \nTrain loss: {:.4f} \nValidation loss: {:.4f}'.format(
-                epoch, epoch_train_loss, epoch_val_loss))
+            print('Epoch {} completed: \nTrain loss: {:.6f} \nValidation loss: {:.6f}'.format(
+                epoch, epoch_train_loss, epoch_val_loss), flush = True)
             
             #Setup save
             epoch_state = {
@@ -121,7 +121,7 @@ if __name__ == '__main__':
             if early_stopper is not None:    
                 early_stopper(epoch_val_loss)
                 if early_stopper.early_stop:
-                    print('\n---------------------- Early stopping triggered!! ----------------------\n')
+                    print('\n---------------------- Early stopping triggered!! ----------------------\n', flush = True)
                     break
     else:
         if opt.loadPath:
@@ -135,4 +135,4 @@ if __name__ == '__main__':
                
         test_loss = inference(test_dataset, model, criterion, device, opt.batchSize)
 
-        print('Test loss: {:.4f}'.format(test_loss))
+        print('Test loss: {:.6f}'.format(test_loss), flush=True)

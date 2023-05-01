@@ -35,12 +35,12 @@ def train(
         del input, target, embeddings
         del loss
 
-        if batch_id % 200==0 or n_batches <= 10:
-            print('Epoch[{}]({}/{}) Loss: {:.6f}'.format(epoch,
-                                                        batch_id, 
-                                                        n_batches,
-                                                        batch_loss))
-            del batch_loss
+        # if batch_id % 200==0 or n_batches <= 10:
+        #     print('Epoch[{}]({}/{}) Loss: {:.6f}'.format(epoch,
+        #                                                 batch_id, 
+        #                                                 n_batches,
+        #                                                 batch_loss))
+        del batch_loss
     avg_loss = epoch_loss / n_batches
     del dataloader
     
