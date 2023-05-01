@@ -86,7 +86,7 @@ if __name__ == '__main__':
                                                 optimizer)
         
         if opt.earlyStopping:
-            early_stopper = EarlyStopper(patience=5, delta=0)
+            early_stopper = EarlyStopper(patience=10, delta=0)
         else:
             early_stopper = None
 
