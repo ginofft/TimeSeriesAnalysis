@@ -26,9 +26,11 @@ parser.add_argument('--mode', type=str, default='train',
 parser.add_argument('--nEpochs', type = int, default=50, help='No. epochs')
 parser.add_argument('--saveEvery', type = int, default = 10, 
                     help='no. epoch before a save is created')
-parser.add_argument('--earlyStopping', type = bool, default = True,
+parser.add_argument('--earlyStopping', type = str, default = 'True',
+                    choices=['True', 'False'],
                     help = 'Whether or not to use early stopping')
-parser.add_argument('--verbose', type = bool, default = True, 
+parser.add_argument('--verbose', type = str, default = 'True',
+                    choices=['True', 'False'], 
                     help='whether to show full training log or not')
 
 #Data parameters
