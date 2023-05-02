@@ -89,7 +89,7 @@ if __name__ == '__main__':
                                                 model,
                                                 optimizer)
         
-        if opt.earlyStopping:
+        if opt.earlyStopping is 'True':
             early_stopper = EarlyStopper(patience=10, delta=0)
         else:
             early_stopper = None
@@ -102,7 +102,7 @@ if __name__ == '__main__':
             epoch_val_loss = inference(val_dataset, model, 
                                     criterion, device, 
                                     opt.batchSize)
-            if opt.verbose:
+            if opt.verbose is 'True':
                 print('Epoch {} completed: \nTrain loss: {:.6f} \nValidation loss: {:.6f}'.format(
                     epoch, epoch_train_loss, epoch_val_loss), flush = True)
     
