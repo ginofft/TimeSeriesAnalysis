@@ -28,6 +28,8 @@ parser.add_argument('--saveEvery', type = int, default = 10,
                     help='no. epoch before a save is created')
 parser.add_argument('--earlyStopping', type = bool, default = True,
                     help = 'Whether or not to use early stopping')
+parser.add_argument('--verbose', type = bool, default = True, 
+                    help='whether to show full training log or not')
 
 #Data parameters
 parser.add_argument('--batchSize', type=int, default = 16, help='batch size')
@@ -98,9 +100,10 @@ if __name__ == '__main__':
             epoch_val_loss = inference(val_dataset, model, 
                                     criterion, device, 
                                     opt.batchSize)
-            print('Epoch {} completed: \nTrain loss: {:.6f} \nValidation loss: {:.6f}'.format(
-                epoch, epoch_train_loss, epoch_val_loss), flush = True)
-            
+            if opt.verbose:
+                print('Epoch {} completed: \nTrain loss: {:.6f} \nValidation loss: {:.6f}'.format(
+                    epoch, epoch_train_loss, epoch_val_loss), flush = True)
+    
             #Setup save
             epoch_state = {
                 'epoch' : epoch,
@@ -121,7 +124,7 @@ if __name__ == '__main__':
             if early_stopper is not None:    
                 early_stopper(epoch_val_loss)
                 if early_stopper.early_stop:
-                    print('\n---------------------- Early stopping triggered!! ----------------------\n', flush = True)
+                    print(f'\n---------------------- Early stopping triggered!! ----------------------\nLowest val loss is: {early_stopper.best_score}\n', flush = True)
                     break
     else:
         if opt.loadPath:
