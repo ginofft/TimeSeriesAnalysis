@@ -22,3 +22,9 @@ class Scaler():
             return (data - self.min) / (self.max - self.min)
         else:
             raise Exception('Not implemented yet')
+    
+    def inverse_transform(self, data):
+        if self.scaler_type == 'minmax':
+            return data * (self.max - self.min) + self.min
+        else:
+            raise Exception('Not implemented yet')
