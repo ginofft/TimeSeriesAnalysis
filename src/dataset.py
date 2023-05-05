@@ -8,8 +8,8 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
                  input_field, 
                  output_field,
                  scaler = None,
-                 h=24,
-                 t=72):
+                 h=2,
+                 t=4):
         self.data = data
         self.input_field = input_field
         self.output_field = output_field
