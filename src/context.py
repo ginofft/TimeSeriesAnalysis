@@ -26,7 +26,6 @@ class Context():
     def train(self) -> None:
         self.strategy.load_data(self.data)
         self.strategy.train(self.output_field, self.input_field, self.h)
-        self.strategy.forecast_ready = True
         print('------------------------- Training completed!! -------------------------')
 
     def forecast(self):

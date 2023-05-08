@@ -3,9 +3,9 @@ import torch
 class LSTMForecaster(torch.nn.Module):
     def __init__(self, 
                 input_size,
+                output_size,
                 hidden_size,
-                num_layers, 
-                output_size):
+                num_layers):
         super(LSTMForecaster, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers

@@ -75,7 +75,7 @@ if __name__ == '__main__':
     model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr = opt.lr)
-    criterion = torch.nn.L1Loss()
+    criterion = torch.nn.MSELoss()
 
     if opt.mode == 'train':
         print('------------------------------- Training -------------------------------')

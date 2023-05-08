@@ -12,10 +12,6 @@ from torch.utils.data import DataLoader
 import os
 
 class ForecastStrategy(ABC):
-    @property
-    @abstractmethod
-    def forecast_ready(self):
-        pass
     @abstractmethod
     def load_data(self, inputFile):
         pass
@@ -43,7 +39,7 @@ class LSTMStrategy(ForecastStrategy):
     def load_data(self, inputFile) -> None:
         self._data = pd.read_csv(inputFile)
 
-    def train(self, output_field, input_field, h,
+    def train(self, input_field, output_field, h,
               nEpochs = 10000,
               lr = 1e-5,
               batchSize = 48,
@@ -58,12 +54,13 @@ class LSTMStrategy(ForecastStrategy):
 
         train_dataset, val_dataset, test_dataset = self._csvToDataset(0.7, 0.15, input_field, output_field, h)
         
-        self._model = LSTMForecaster(len(input_field), 
-                                len(output_field) * h, 
-                                self.num_layers, 
-                                self.hidden_size)
+        self._model = LSTMForecaster(
+                                input_size = len(input_field), 
+                                output_size = len(output_field) * h, 
+                                num_layers = self.num_layers, 
+                                hidden_size = self.hidden_size)
         self._model.to(device)
-        optimizer = torch.optim.AdamW()
+        optimizer = torch.optim.AdamW(lr = lr, params = self._model.parameters())
         criterion = torch.nn.L1Loss()
         
         startEpoch = 0
@@ -101,10 +98,21 @@ class LSTMStrategy(ForecastStrategy):
             if early_stopper.early_stop:
                 print(f'\n---------------------- Early stopping triggered!! ----------------------\nLowest val loss is: {early_stopper.best_score}\n', flush = True)                
                 break
-
         
-    def forecast(self, output_field, input_field, h):
-        pass    
+    def forecast(self, input_field, output_field, h):
+        self._model = LSTMForecaster(
+                                input_size = len(input_field), 
+                                output_size = len(output_field) * h, 
+                                num_layers = self.num_layers, 
+                                hidden_size = self.hidden_size)
+        
+        load_checkpoint(self._modelPath, self._model)
+
+        field_to_be_scaled = list(set(input_field + output_field))
+        scaler = Scaler(self._data[field_to_be_scaled], 'minmax')
+        dataset = TimeSeriesDataset(self._data, input_field, output_field, scaler, h, self.lookback_length)
+        dataset.predict(self._model)
+        return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
         train_end_index = int(train_ratio * len(self._data))
