@@ -98,7 +98,7 @@ if __name__ == '__main__':
             #Calculate Loss
             epoch_train_loss = train(train_dataset, model, 
                                     criterion, optimizer, 
-                                    device, opt.batchSize, epoch)
+                                    device, opt.batchSize)
             epoch_val_loss = inference(val_dataset, model, 
                                     criterion, device, 
                                     opt.batchSize)
