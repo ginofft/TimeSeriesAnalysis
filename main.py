@@ -64,12 +64,12 @@ if __name__ == '__main__':
     field_to_be_scaled = list(set(opt.inputField + opt.outputField))
     scaler = Scaler(train_df[field_to_be_scaled], 'minmax')
 
-    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, h=opt.h, t=opt.t, scaler=scaler)
-    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, h=opt.h, t=opt.t, scaler=scaler)
-    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, h=opt.h, t=opt.t, scaler=scaler)
+    train_dataset = TimeSeriesDataset(train_df, opt.inputField, opt.outputField, t=opt.t, scaler=scaler)
+    val_dataset = TimeSeriesDataset(val_df, opt.inputField, opt.outputField, t=opt.t, scaler=scaler)
+    test_dataset = TimeSeriesDataset(test_df, opt.inputField, opt.outputField, t=opt.t, scaler=scaler)
 
     model = LSTMForecaster(input_size=len(opt.inputField), 
-                           output_size=len(opt.outputField)*opt.h, 
+                           output_size=len(opt.outputField), 
                            hidden_size=opt.hiddenSize, 
                            num_layers=opt.numLayers)
     model.to(device)

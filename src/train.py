@@ -8,8 +8,7 @@ def train(
         criterion,
         optimizer,
         device=torch.device("cuda"),
-        batch_size=8,  
-        epoch=1):
+        batch_size=8,):
     
     dataloader = DataLoader(train_set, 
                             batch_size = batch_size, 
@@ -22,7 +21,7 @@ def train(
     model.train()
     for batch_id, (input, target) in enumerate(dataloader, 1):
         input = input.to(device)
-        target = target.flatten(start_dim=1).to(device)
+        target = target.to(device)
 
         embeddings = model(input)
         loss = criterion(embeddings, target).to(device)
@@ -65,7 +64,7 @@ def inference(
     with torch.no_grad():
         for input, target in dataloader:
             input = input.to(device)
-            target = target.flatten(start_dim=1).to(device)
+            target = target.to(device)
 
             embeddings = model(input)
             loss = criterion(embeddings, target).to(device)

@@ -111,7 +111,7 @@ class LSTMStrategy(ForecastStrategy):
         field_to_be_scaled = list(set(input_field + output_field))
         scaler = Scaler(self._data[field_to_be_scaled], 'minmax')
         dataset = TimeSeriesDataset(self._data, input_field, output_field, scaler, h, self.lookback_length)
-        dataset.predict(self._model)
+        dataset.predict(self._model, predictPastValues=True)
         return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
