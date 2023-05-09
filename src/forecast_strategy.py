@@ -5,8 +5,8 @@ from .utils import load_checkpoint, save_checkpoint, EarlyStopper
 from .dataset import TimeSeriesDataset
 from .scaler import Scaler
 
-
 import pandas as pd
+from pmdarima import auto_arima
 import torch
 from torch.utils.data import DataLoader
 import os
@@ -201,9 +201,11 @@ class LSTMStrategy(ForecastStrategy):
             torch.cuda.empty_cache()
         return avg_loss
     
-class ARIMAStrategy(ForecastStrategy):
-    
-    def __init__(self)
-    def load_data(self, inputFile):
+class SARIMAStrategy(ForecastStrategy):
+    def __init__(self):
         pass
-    
+    def load_data(self, inputFile):
+        self._data = pd.read_csv(inputFile)
+    def train(self, input_field, output_field):
+        model = auto_arima(self._data[output_field], seasonal=True)
+        model.fit(self.data[output_field])
