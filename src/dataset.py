@@ -48,11 +48,16 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
-        lastLookbackWindows = self.data[self.input_field].iloc[-self.t:].values
-        lastLookbackWindows = torch.tensor(lastLookbackWindows, dtype=torch.float32).to(device)
-        forecastResult = self._getforecast(lastLookbackWindows, forecastWindow)
-        if predictPastValues:
-            pass
+        col_pred = [col + '_pred' for col in self.output_field]
+        self.data[col_pred] = np.nan
+        for row_index, (input, _)  in enumerate(self):
+            input = input.unsqueeze(0)
+            input = input.to(device)
+            output = model(input)
+            output = output.squeeze(0)
+            output = output.cpu().detach().numpy()
+            for col_index, col in enumerate(col_pred):
+                self.data.loc[row_index+self.t, col] = output[col_index]    
         return self.data
 
     def plot_forecast_result(self):

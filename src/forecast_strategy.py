@@ -102,7 +102,7 @@ class LSTMStrategy(ForecastStrategy):
     def forecast(self, input_field, output_field, h):
         self._model = LSTMForecaster(
                                 input_size = len(input_field), 
-                                output_size = len(output_field) * h, 
+                                output_size = len(output_field), 
                                 num_layers = self.num_layers, 
                                 hidden_size = self.hidden_size)
         
@@ -116,12 +116,6 @@ class LSTMStrategy(ForecastStrategy):
                                     scaler = scaler, 
                                     t = self.lookback_length)
         dataset.predict(self._model, h, predictPastValues=True)
-
-        lastLookBackWindow = dataset[-(self.lookback_length+1)][0]
-        forecastResult = self._getforecast(lastLookBackWindow, h)
-
-
-
         return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
