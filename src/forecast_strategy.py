@@ -200,3 +200,10 @@ class LSTMStrategy(ForecastStrategy):
         if device == torch.device('cuda'):
             torch.cuda.empty_cache()
         return avg_loss
+    
+class ARIMAStrategy(ForecastStrategy):
+    
+    def __init__(self)
+    def load_data(self, inputFile):
+        pass
+    
