@@ -33,48 +33,26 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
         else:
             self.data = self.scaler.inverse_transform(self.data)
     
-    def predict(self, model, predictPastValues: bool = False):
+    def _getforecast(self, lastLookBackWindow, h):
+        forecastResult = torch.zeros(lastLookBackWindow.shape[0] + h, lastLookBackWindow.shape[1])
+        forecastResult[:lastLookBackWindow.shape[0], :] = lastLookBackWindow
+        start_index = lastLookBackWindow.shape[0]
+        for i in range(h):
+            index = start_index + i
+            lookbackWindow = forecastResult[index - self.lookback_length:index, :].unsqueeze(0)
+            output = self._model(lookbackWindow)
+            forecastResult[index, :] = output
+        return forecastResult[-h:, :]
+        
+    def predict(self, model, forecastWindow: int =4, predictPastValues: bool = False):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
-        lastLookBackWindown = self.data[self.input_field].iloc[-self.t:].values
-        lastLookBackWindown = torch.tensor(lastLookBackWindown, dtype=torch.float32) 
-        lastLookBackWindown.unsqueeze_(dim=0)
-        if len(lastLookBackWindown.shape) == 2:
-            lastLookBackWindown.unsqueeze_(dim=2)
-        lastLookBackWindown.to(device)
-
-        col_pred = [col + '_pred' for col in self.output_field]
-        for col in col_pred:
-            self.data[col] = pd.Series()
-        
-        output = model(lastLookBackWindown)
-        output.squeeze_(dim=0)
-        output = torch.reshape(output, (self.h, len(self.output_field)))
-
-        for i in range(len(self.data), len(self.data)+self.h):
-            for col_index, col in enumerate(col_pred):
-                self.data.loc[i, col] = output[i - len(self.data), col_index].item()
-        
+        lastLookbackWindows = self.data[self.input_field].iloc[-self.t:].values
+        lastLookbackWindows = torch.tensor(lastLookbackWindows, dtype=torch.float32).to(device)
+        forecastResult = self._getforecast(lastLookbackWindows, forecastWindow)
         if predictPastValues:
-            numGroup = (len(self.data) - (self.t+self.h))//(self.h) + 1
-            startForecastIndex = (len(self.data) - self.t) % self.h
-            for i in range(numGroup):
-                startIndex = startForecastIndex + i*self.h
-                endIndex = startIndex + self.t
-                lookbackWindow = self.data[self.input_field].iloc[startIndex:endIndex].values
-                lookbackWindow = torch.tensor(lookbackWindow, dtype=torch.float32)
-                lookbackWindow.unsqueeze_(dim=0)
-                if len(lookbackWindow.shape) == 2:
-                    lookbackWindow.unsqueeze_(dim=2)
-                lookbackWindow.to(device)
-                output = model(lookbackWindow)
-                output.squeeze_(dim=0)
-                output = torch.reshape(output, (self.h, len(self.output_field)))
-                for j in range(startIndex+self.t, startIndex+self.t+self.h):
-                    for col_index, col in enumerate(col_pred):
-                        self.data.loc[j, col] = output[j - (startIndex+self.t), col_index].item()
-        
+            pass
         return self.data
 
     def plot_forecast_result(self):

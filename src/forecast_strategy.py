@@ -39,7 +39,7 @@ class LSTMStrategy(ForecastStrategy):
     def load_data(self, inputFile) -> None:
         self._data = pd.read_csv(inputFile)
 
-    def train(self, input_field, output_field, h,
+    def train(self, input_field, output_field,
               nEpochs = 10000,
               lr = 1e-5,
               batchSize = 48,
@@ -52,11 +52,11 @@ class LSTMStrategy(ForecastStrategy):
             device = torch.device('cpu')
             print('No CUDA GPU detected. Using CPU instead.')
 
-        train_dataset, val_dataset, test_dataset = self._csvToDataset(0.7, 0.15, input_field, output_field, h)
+        train_dataset, val_dataset, test_dataset = self._csvToDataset(0.7, 0.15, input_field, output_field)
         
         self._model = LSTMForecaster(
                                 input_size = len(input_field), 
-                                output_size = len(output_field) * h, 
+                                output_size = len(output_field), 
                                 num_layers = self.num_layers, 
                                 hidden_size = self.hidden_size)
         self._model.to(device)
@@ -107,11 +107,21 @@ class LSTMStrategy(ForecastStrategy):
                                 hidden_size = self.hidden_size)
         
         load_checkpoint(self._modelPath, self._model)
-
         field_to_be_scaled = list(set(input_field + output_field))
         scaler = Scaler(self._data[field_to_be_scaled], 'minmax')
-        dataset = TimeSeriesDataset(self._data, input_field, output_field, scaler, h, self.lookback_length)
-        dataset.predict(self._model, predictPastValues=True)
+
+        dataset = TimeSeriesDataset(self._data, 
+                                    input_field = input_field, 
+                                    output_field = output_field, 
+                                    scaler = scaler, 
+                                    t = self.lookback_length)
+        dataset.predict(self._model, h, predictPastValues=True)
+
+        lastLookBackWindow = dataset[-(self.lookback_length+1)][0]
+        forecastResult = self._getforecast(lastLookBackWindow, h)
+
+
+
         return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
@@ -125,13 +135,13 @@ class LSTMStrategy(ForecastStrategy):
         field_to_be_scaled = list(set(input_field + output_field))
         scaler = Scaler(train_data[field_to_be_scaled], 'minmax')
         train_dataset = TimeSeriesDataset(train_data, input_field, output_field, 
-                                          h=h, t=self.lookback_length, 
+                                          t=self.lookback_length, 
                                           scaler=scaler)
         val_dataset = TimeSeriesDataset(val_data, input_field, output_field,
-                                        h=h, t=self.lookback_length,
+                                        t=self.lookback_length,
                                         scaler=scaler)
         test_dataset = TimeSeriesDataset(test_data, input_field, output_field,
-                                        h=h, t=self.lookback_length,
+                                        t=self.lookback_length,
                                         scaler=scaler)
         return train_dataset, val_dataset, test_dataset
     
@@ -200,3 +210,14 @@ class LSTMStrategy(ForecastStrategy):
         if device == torch.device('cuda'):
             torch.cuda.empty_cache()
         return avg_loss
+    
+    def _getforecast(self, lastLookBackWindow, h):
+        forecastResult = torch.zeros(lastLookBackWindow.shape[0] + h, lastLookBackWindow.shape[1])
+        forecastResult[:lastLookBackWindow.shape[0], :] = lastLookBackWindow
+        start_index = lastLookBackWindow.shape[0]
+        for i in range(h):
+            index = start_index + i
+            lookbackWindow = forecastResult[index - self.lookback_length:index, :].unsqueeze(0)
+            output = self._model(lookbackWindow)
+            forecastResult[index, :] = output
+        return forecastResult[-h:, :]
