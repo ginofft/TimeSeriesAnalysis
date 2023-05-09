@@ -209,9 +209,13 @@ class SARIMAStrategy(ForecastStrategy):
 
     def train(self, input_field, output_field, m=12):
         self._model = auto_arima(self._data[output_field], seasonal=True, m=m)
-        self._model.fit(self.data[output_field])
+        self._model.fit(self._data[output_field])
         return self._model.summary()
     
     def forecast(self, input_field, output_field, h):
+        preds = self._model.predict(n_periods=h)
         col_pred = [col + '_pred' for col in output_field]
-        self._data[col_pred] = self._model.predict(n_periods=h)
+        for col in col_pred:
+            self._data[col] = pd.concat([pd.Series[None]*len(self._data), pd.Series(preds)])
+        return self._data
+                                        
