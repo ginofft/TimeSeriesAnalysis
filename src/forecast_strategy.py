@@ -206,9 +206,12 @@ class SARIMAStrategy(ForecastStrategy):
         pass
     def load_data(self, inputFile):
         self._data = pd.read_csv(inputFile)
-    def train(self, input_field, output_field):
-        self._model = auto_arima(self._data[output_field], seasonal=True)
+
+    def train(self, input_field, output_field, m=12):
+        self._model = auto_arima(self._data[output_field], seasonal=True, m=m)
         self._model.fit(self.data[output_field])
         return self._model.summary()
+    
     def forecast(self, input_field, output_field, h):
-        return self._model.predict(n_periods=h)
+        col_pred = [col + '_pred' for col in output_field]
+        self._data[col_pred] = self._model.predict(n_periods=h)
