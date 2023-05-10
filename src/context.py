@@ -29,9 +29,9 @@ class Context():
         print('------------------------- Training completed!! -------------------------')
 
     def forecast(self):
-        if self.strategy.forecast_ready:
-            return self.strategy.forecast(self._data, self._output_field, self._input_field, self._h)
-        else:
+        if self.strategy._model is None:
             raise Exception('Model is not trained yet, please train or load a trained model first')
+        else:
+            return self.strategy.forecast(self._data, self._output_field, self._input_field, self._h)
     
     

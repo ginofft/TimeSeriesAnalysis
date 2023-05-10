@@ -13,7 +13,7 @@ import os
 
 class ForecastStrategy(ABC):
     @abstractmethod
-    def load_data(self, inputFile):
+    def load_data(self, dataframe):
         pass
     @abstractmethod
     def train(self, output_field, input_field, h, **kwargs):
@@ -36,8 +36,8 @@ class LSTMStrategy(ForecastStrategy):
         self.lookback_length = lookback_length
         self.verbose = verbose
 
-    def load_data(self, inputFile) -> None:
-        self._data = pd.read_csv(inputFile)
+    def load_data(self, dataframe) -> None:
+        self._data = dataframe
 
     def train(self, input_field, output_field, h,
               nEpochs = 10000,
@@ -204,8 +204,8 @@ class LSTMStrategy(ForecastStrategy):
 class SARIMAStrategy(ForecastStrategy):
     def __init__(self):
         pass
-    def load_data(self, inputFile):
-        self._data = pd.read_csv(inputFile)
+    def load_data(self, dataframe):
+        self._data = dataframe
 
     def train(self, input_field, output_field, m=12):
         self._model = auto_arima(self._data[output_field], seasonal=True, m=m)
