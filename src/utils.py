@@ -54,7 +54,6 @@ class EarlyStopper:
         self.counter = 0
         self.best_score = None
         self.early_stop = False
-    
 
     def __call__(self, val_loss):
         if self.best_score is None:
