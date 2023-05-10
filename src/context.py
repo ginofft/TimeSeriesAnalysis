@@ -2,10 +2,10 @@ import pandas as pd
 from .forecast_strategy import ForecastStrategy
 
 class Context():
-    def __init__(self, strategy, data : pd.DataFrame, outpuf_field, input_field, h):
+    def __init__(self, strategy, data : pd.DataFrame, output_field, input_field, h):
         self._strategy = strategy
         self._data = data
-        self.output_field = outpuf_field
+        self.output_field = output_field
         self.input_field = input_field
         self.h = h
     
@@ -23,15 +23,18 @@ class Context():
     def data(self, data: pd.DataFrame) -> None:
         self._data = data
 
-    def train(self) -> None:
+    def train(self, **kwargs) -> None:
         self.strategy.load_data(self.data)
-        self.strategy.train(self.output_field, self.input_field, self.h)
+        self.strategy.train(input_field=self.input_field, 
+                            output_field = self.output_field, 
+                            h = self.h, 
+                            **kwargs)
         print('------------------------- Training completed!! -------------------------')
 
     def forecast(self):
         if self.strategy._model is None:
             raise Exception('Model is not trained yet, please train or load a trained model first')
         else:
-            return self.strategy.forecast(self._data, self._output_field, self._input_field, self._h)
+            return self.strategy.forecast(self.input_field, self.output_field, self.h)
     
     

@@ -6,6 +6,7 @@ from .dataset import TimeSeriesDataset
 from .scaler import Scaler
 
 import pandas as pd
+import numpy as np
 from pmdarima import auto_arima
 import torch
 from torch.utils.data import DataLoader
@@ -16,10 +17,10 @@ class ForecastStrategy(ABC):
     def load_data(self, dataframe):
         pass
     @abstractmethod
-    def train(self, output_field, input_field, h, **kwargs):
+    def train(self, input_field, output_field, h, **kwargs):
         pass
     @abstractmethod
-    def forecast(self, output_field, input_field, h):
+    def forecast(self, input_field, oput_field, h):
         pass
 
 class LSTMStrategy(ForecastStrategy):
@@ -207,15 +208,15 @@ class SARIMAStrategy(ForecastStrategy):
     def load_data(self, dataframe):
         self._data = dataframe
 
-    def train(self, input_field, output_field, m=12):
+    def train(self, input_field, output_field, h, m=12):
         self._model = auto_arima(self._data[output_field], seasonal=True, m=m)
         self._model.fit(self._data[output_field])
         return self._model.summary()
     
     def forecast(self, input_field, output_field, h):
         preds = self._model.predict(n_periods=h)
-        col_pred = [col + '_pred' for col in output_field]
-        for col in col_pred:
-            self._data[col] = pd.concat([pd.Series[None]*len(self._data), pd.Series(preds)])
+        nan_df = pd.DataFrame(np.nan, index=preds.index, columns=self._data.columns)
+        self._data = pd.concat([self._data, nan_df])
+        self._data['pred'] = preds
         return self._data
                                         
