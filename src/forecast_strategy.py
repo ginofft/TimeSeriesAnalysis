@@ -5,8 +5,8 @@ from .utils import load_checkpoint, save_checkpoint, EarlyStopper
 from .dataset import TimeSeriesDataset
 from .scaler import Scaler
 
-
 import pandas as pd
+from pmdarima import auto_arima
 import torch
 from torch.utils.data import DataLoader
 import os
@@ -111,7 +111,7 @@ class LSTMStrategy(ForecastStrategy):
         field_to_be_scaled = list(set(input_field + output_field))
         scaler = Scaler(self._data[field_to_be_scaled], 'minmax')
         dataset = TimeSeriesDataset(self._data, input_field, output_field, scaler, h, self.lookback_length)
-        dataset.predict(self._model)
+        dataset.predict(self._model, predictPastValues=True)
         return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
@@ -200,3 +200,22 @@ class LSTMStrategy(ForecastStrategy):
         if device == torch.device('cuda'):
             torch.cuda.empty_cache()
         return avg_loss
+    
+class SARIMAStrategy(ForecastStrategy):
+    def __init__(self):
+        pass
+    def load_data(self, inputFile):
+        self._data = pd.read_csv(inputFile)
+
+    def train(self, input_field, output_field, m=12):
+        self._model = auto_arima(self._data[output_field], seasonal=True, m=m)
+        self._model.fit(self._data[output_field])
+        return self._model.summary()
+    
+    def forecast(self, input_field, output_field, h):
+        preds = self._model.predict(n_periods=h)
+        col_pred = [col + '_pred' for col in output_field]
+        for col in col_pred:
+            self._data[col] = pd.concat([pd.Series[None]*len(self._data), pd.Series(preds)])
+        return self._data
+                                        
