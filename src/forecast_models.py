@@ -11,7 +11,7 @@ class LSTMForecaster(torch.nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.lstm = torch.nn.LSTM(input_size = input_size, 
-                                  hiden_size = hidden_size,
+                                  hidden_size = hidden_size,
                                   num_layers = self.num_layers, 
                                   batch_first=True)
         self.dropout = torch.nn.Dropout(dropout)

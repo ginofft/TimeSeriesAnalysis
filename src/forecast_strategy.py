@@ -115,7 +115,7 @@ class LSTMStrategy(ForecastStrategy):
                                     output_field = output_field, 
                                     scaler = scaler, 
                                     t = self.lookback_length)
-        dataset.predict(self._model, h, predictPastValues=True)
+        dataset.predict(self._model, forecastWindow=h, predictPastValues=True)
         return dataset.data
 
     def _csvToDataset(self, train_ratio, val_ratio, input_field, output_field, h):
