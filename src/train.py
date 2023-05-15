@@ -25,6 +25,7 @@ def train(
 
         embeddings = model(input)
         loss = criterion(embeddings, target).to(device)
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()  
 
