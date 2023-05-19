@@ -1,3 +1,4 @@
+from sklearn.base import TransformerMixin, BaseEstimator
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -46,6 +47,17 @@ def load_checkpoint(path, model, optimizer = None):
     print("Checkpoint's validation loss is: {:.4f}".format(val_loss))
 
     return epoch, train_loss, val_loss
+
+class DateTimeConverter(TransformerMixin, BaseEstimator):
+    def __init__(self, 
+                 datetime_col):
+        self.datetime_col = datetime_col
+    def fit(self, X, y=None, **fit_params):
+        X[self.datetime_col] = pd.to_datetime(X[self.datetime_col])
+        return self
+    def transform(self, X, y=None, **fit_params):
+        X[self.datetime_col] = pd.to_datetime(X[self.datetime_col])
+        return X
 
 class EarlyStopper:
     def __init__(self, patience=10, delta = 0):
