@@ -45,6 +45,12 @@ class DeepLearningStrategy(ForecastStrategy):
     def load_data(self, dataframe) -> None:
         self._data = dataframe
 
+    def save_checkpoint(self, state, path):
+        pass
+
+    def load_checkpoint(self, path):
+        pass
+
     def train(self, 
               input_field, 
               output_field,
@@ -149,10 +155,22 @@ class SARIMAStrategy(ForecastStrategy):
         self._model.fit(self._data[output_field])
         return self._model.summary()
     
-    def forecast(self, input_field, output_field, forecastWindow):
+    def forecast(self, datetime_col, freq, input_field, output_field, forecastWindow):
+        
+        df = self._data.copy()
+
+        dates = pd.date_range(start=df.loc[0, datetime_col],
+                            periods = len(df.loc[0:]) + forecastWindow,
+                            freq=freq)
+        
+        df['Month'] = dates[0:144]
         preds = self._model.predict(n_periods=forecastWindow)
-        nan_df = pd.DataFrame(np.nan, index=preds.index, columns=self._data.columns)
-        self._data = pd.concat([self._data, nan_df])
-        self._data['pred'] = preds
-        return self._data
+        preds_df = pd.DataFrame(dates, columns=[datetime_col])
+        preds_df.loc[-forecastWindow:, output_field] = preds
+
+        new_columns = [col + '_pred' if col in output_field else col for col in preds_df.columns]
+        preds_df = preds_df.rename(columns=dict(zip(df.columns, new_columns)))
+    
+        merged_df = pd.concat([df, preds_df])
+        return merged_df
                                         

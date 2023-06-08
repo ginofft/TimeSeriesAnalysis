@@ -24,30 +24,6 @@ def plot_csv_by_time(csv_path, start_time, end_time):
     plt.legend()
     plt.show()
 
-def save_checkpoint(state, path: Path, filename='latest.pth.tar'):
-    outpath = path / filename
-    torch.save(state, outpath)
-
-def load_checkpoint(path, model, optimizer = None):
-    if torch.cuda.is_available():
-        device = torch.device('cuda')
-    else:
-        device = torch.device('cpu')
-    state = torch.load(path, map_location=device)
-    epoch = state['epoch']
-    train_loss = state['train_loss']
-    val_loss = state['val_loss']
-
-    model.load_state_dict(state['model_state_dict'])
-    if optimizer != None:
-        optimizer.load_state_dict(state['optimizer_state_dict'])
-
-    print("=> loaded checkpoint '{}' (epoch {})".format(True, epoch))
-    print("Checkpoint's train loss is: {:.4f}".format(train_loss))
-    print("Checkpoint's validation loss is: {:.4f}".format(val_loss))
-
-    return epoch, train_loss, val_loss
-
 class DateTimeConverter(TransformerMixin, BaseEstimator):
     def __init__(self, 
                  datetime_col):
